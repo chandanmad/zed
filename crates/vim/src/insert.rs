@@ -126,4 +126,22 @@ mod test {
             .await;
         cx.shared_state().await.assert_eq("hehello\nˇllo\n");
     }
+
+    #[gpui::test]
+    async fn test_insert_end_of_line_temp_normal(cx: &mut gpui::TestAppContext) {
+        let mut cx = VimTestContext::new(cx, true).await;
+        cx.simulate_keystrokes("i");
+        assert_eq!(cx.mode(), Mode::Insert);
+        cx.simulate_keystrokes("T e s t");
+        cx.assert_editor_state("Testˇ");
+        cx.simulate_keystrokes("escape");
+        cx.simulate_keystrokes("h h");
+        cx.assert_editor_state("Tˇest");
+
+        cx.simulate_keystrokes("ctrl-o");
+        assert_eq!(cx.mode(), Mode::Normal);
+        cx.simulate_keystrokes("$");
+        assert_eq!(cx.mode(), Mode::Insert);
+        cx.assert_editor_state("Testˇ");
+    }
 }
